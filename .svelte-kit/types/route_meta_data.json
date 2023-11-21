@@ -2,8 +2,8 @@
 	"/": [
 		"src/routes/+page.server.js"
 	],
-	"/category": [
-		"src/routes/category/+page.server.js"
+	"/category/[id]": [
+		"src/routes/category/[id]/+page.server.js"
 	],
 	"/event/[id]": [
 		"src/routes/event/[id]/+page.server.js"

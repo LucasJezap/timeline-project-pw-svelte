@@ -1,6 +1,5 @@
 <script>
   export let data;
-  import { onMount } from 'svelte';
 
   let fallbackImage = "images/undraw_poster.png";
 

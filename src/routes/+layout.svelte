@@ -1,5 +1,5 @@
 <script>
-  import Layout from "../../dashboard/Layout.svelte";
+  import Layout from "../dashboard/Layout.svelte";
   import "$lib/css/welcome.css";
 </script>
 

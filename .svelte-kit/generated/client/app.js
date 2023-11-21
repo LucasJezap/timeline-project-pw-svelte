@@ -19,7 +19,7 @@ export const server_loads = [];
 
 export const dictionary = {
 		"/": [~2],
-		"/category": [~3],
+		"/category/[id]": [~3],
 		"/event/[id]": [~4],
 		"/profile/[id]": [~5],
 		"/settings/[id]": [~6],
