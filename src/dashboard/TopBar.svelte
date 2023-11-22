@@ -1,5 +1,6 @@
 <script>
   import { toggleSidebar } from "./store";
+  import { browser } from "$app/environment";
   import { getUpcomingEvents } from "$lib/js/timeline-events";
   import { categories, getCategoryByName } from "$lib/js/categories";
   import MultiSelect from "svelte-multiselect";
@@ -99,13 +100,21 @@
   <Dropdown>
     <DropdownToggle caret color="danger">Sort By</DropdownToggle>
     <DropdownMenu>
-      {#each ["title", "start", "end", "description"] as value}
-        <DropdownItem active={value === sortBy} on:click={() => {
-          sortBy = value;
-          setCookie("sort_by", value, 365, true);
-        }}>
-          {value}
-        </DropdownItem>
+      {#each ["id", "title", "start", "end", "description"] as value}
+        {#each ["asc", "desc"] as order}
+          <DropdownItem
+            active={value + " " + order === sortBy}
+            on:click={() => {
+              sortBy = value + " " + order;
+              setCookie("sort_by", sortBy, 365, true);
+              if (browser) {
+                window.location.reload();
+              }
+            }}
+          >
+            {value + " " + order}
+          </DropdownItem>
+        {/each}
       {/each}
     </DropdownMenu>
   </Dropdown>

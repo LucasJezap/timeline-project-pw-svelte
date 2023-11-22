@@ -3,12 +3,31 @@
   import { onMount } from "svelte";
 
   export let data;
-  let sortBy = "";
   let events = data["timelineEvents"];
 
   onMount(() => {
-    sortBy = getCookie("sort_by");
-    events = [...data["timelineEvents"]].sort((a, b) => a[sortBy] - b[sortBy]);
+    let sortSplit = getCookie("sort_by").split(" ");
+
+    if (sortSplit.length === 2) {
+      let sortBy = sortSplit[0];
+      if (events.length > 0 && typeof events[0][sortBy] === "string") {
+        events = [...data["timelineEvents"]].sort((a, b) => {
+          if (sortSplit[1] === "asc") {
+            return a[sortBy].localeCompare(b[sortBy]);
+          } else {
+            return b[sortBy].localeCompare(a[sortBy]);
+          }
+        });
+      } else {
+        events = [...data["timelineEvents"]].sort((a, b) => {
+          if (sortSplit[1] === "asc") {
+            return a[sortBy] - b[sortBy];
+          } else {
+            return b[sortBy] - a[sortBy];
+          }
+        });
+      }
+    }
   });
 
   let fallbackImage = "images/undraw_poster.png";
@@ -58,7 +77,7 @@
             </p>
             {#each event["categories"] as category}
               <a
-                href="/category/{category["id"]}"
+                href="/category/{category['id']}"
                 class="btn-primary btn-md bg-transparent"
                 style="border: none;"
                 ><h6
@@ -71,7 +90,7 @@
             {/each}
           </div>
           <a
-            href="/event/{event["id"]}"
+            href="/event/{event['id']}"
             class="btn btn-primary btn-md bg-transparent align-self-lg-end"
             style="border: none;"
             >Details

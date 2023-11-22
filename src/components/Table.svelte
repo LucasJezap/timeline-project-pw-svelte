@@ -1,65 +1,62 @@
 <script>
+  import { Table } from "sveltestrap";
   export let title;
   export let data;
-  
-	let array = [
-		{id:1, val:"hello"},
-		{id:2, val:"world"},
-		{id:3, val:"sorted"},
-		{id:4, val:"table"},
-	];
-	
-	// Holds table sort state.  Initialized to reflect table sorted by id column ascending.
-	let sortBy = {col: "id", ascending: true};
-	
-	$: sort = (column) => {
-		
-		if (sortBy.col == column) {
-			sortBy.ascending = !sortBy.ascending
-		} else {
-			sortBy.col = column
-			sortBy.ascending = true
-		}
-		
-		// Modifier to sorting function for ascending or descending
-		let sortModifier = (sortBy.ascending) ? 1 : -1;
-		
-		let sort = (a, b) => 
-			(a[column] < b[column]) 
-			? -1 * sortModifier 
-			: (a[column] > b[column]) 
-			? 1 * sortModifier 
-			: 0;
-		
-		array = array.sort(sort);
-	}
+
+  let sortBy = { col: "id", ascending: true };
+  let symbolMap = {};
+  Object.keys(data[0]).forEach((colName) => {
+    symbolMap[colName] = "fa-solid fa-sort";
+  });
+
+  $: sort = (column) => {
+    if (sortBy.col == column) {
+      sortBy.ascending = !sortBy.ascending;
+      symbolMap[column] =
+        symbolMap[column] === "fa-solid fa-sort-up"
+          ? "fa-solid fa-sort-down"
+          : "fa-solid fa-sort-up";
+    } else {
+      sortBy.col = column;
+      sortBy.ascending = true;
+      for (let s in symbolMap) {
+        symbolMap[s] = "fa-solid fa-sort";
+      }
+      symbolMap[column] = "fa-solid fa-sort-up";
+    }
+
+    // Modifier to sorting function for ascending or descending
+    let sortModifier = sortBy.ascending ? 1 : -1;
+
+    let sort = (a, b) =>
+      a[column] < b[column]
+        ? -1 * sortModifier
+        : a[column] > b[column]
+        ? 1 * sortModifier
+        : 0;
+
+    data = data.sort(sort);
+  };
 </script>
 
-<style>
-	table, th, td {
-		border: 1px solid black;
-		border-collapse: collapse;
-	}
-	table {
-		background: #eee;
-		width: 50%;
-		text-align: center;
-	}
-</style>
-
-<table>
-	<thead>
-		<tr>
-			<th on:click={sort("id")}>id</th>
-			<th on:click={sort("val")}>val</th>
-		</tr>
-	</thead>
-	<tbody>
-		{#each array as row}
-			<tr>
-				<td>{row.id}</td>
-				<td>{row.val}</td>
-			</tr>
-		{/each}
-	</tbody>
-</table>
+<h4>{title}</h4>
+<Table responsive>
+  <thead>
+    <tr>
+      {#each Object.keys(data[0]) as colName}
+        <th on:click={sort(colName)}
+          ><nobr>{colName + " "}<i class={symbolMap[colName]} /></nobr></th
+        >
+      {/each}
+    </tr>
+  </thead>
+  <tbody>
+    {#each data as row}
+      <tr>
+        {#each Object.keys(row) as colName}
+          <td>{row[colName]}</td>
+        {/each}
+      </tr>
+    {/each}
+  </tbody>
+</Table>
