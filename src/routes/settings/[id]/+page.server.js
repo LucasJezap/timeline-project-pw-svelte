@@ -1,14 +1,20 @@
 import { saveUserSettings, getUserSettings } from "$lib/js/user-settings";
 import { changePassword, getUser } from "$lib/js/users";
 import { error, fail } from "@sveltejs/kit";
+import { getUpcomingEvents } from "$lib/js/timeline-events";
 
 export function load({ params }) {
   const userSettings = getUserSettings(parseInt(params.id));
 
   if (userSettings === undefined) throw error(404);
 
+  let user = getUser();
+  let upcomingEvents = getUpcomingEvents(user["id"]);
+
   return {
     userSettings,
+    user,
+    upcomingEvents,
   };
 }
 
@@ -36,6 +42,6 @@ export const actions = {
       });
     }
 
-    changePassword(parseInt(params.id), data.get("new_password"));
+    changePassword(data.get("new_password"));
   },
 };

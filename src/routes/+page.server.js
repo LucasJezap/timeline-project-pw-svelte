@@ -1,6 +1,7 @@
-import { getFilteredEvents } from "$lib/js/timeline-events";
+import { getFilteredEvents, getUpcomingEvents } from "$lib/js/timeline-events";
 import { getTimelineEventCategories } from "$lib/js/timeline-events-categories";
 import { error } from "@sveltejs/kit";
+import { getUser } from "$lib/js/users"
 
 export function load({ cookies }) {
   const filters = ["title", "description", "from", "to", "category"];
@@ -20,8 +21,14 @@ export function load({ cookies }) {
     event["categories"] = getTimelineEventCategories(event["id"]);
   });
 
+  let user = getUser();
+  let upcomingEvents = getUpcomingEvents(user["id"]);
+
   return {
     timelineEvents,
+    user,
+    upcomingEvents,
+    showFilterAndSort: true,
   };
 }
 

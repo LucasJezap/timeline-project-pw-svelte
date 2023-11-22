@@ -23,11 +23,11 @@ export const dictionary = {
 		"/event/[id]": [~4],
 		"/profile/[id]": [~5],
 		"/settings/[id]": [~6],
-		"/tables/categories": [7],
-		"/tables/timeline-events-categories": [9],
-		"/tables/timeline-events": [8],
-		"/tables/user-settings": [10],
-		"/tables/users": [11]
+		"/tables/categories": [~7],
+		"/tables/timeline-events-categories": [~9],
+		"/tables/timeline-events": [~8],
+		"/tables/user-settings": [~10],
+		"/tables/users": [~11]
 	};
 
 export const hooks = {

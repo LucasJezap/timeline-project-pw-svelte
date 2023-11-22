@@ -1,7 +1,9 @@
 <script>
   import { Table } from "sveltestrap";
+  import { page } from "$app/stores";
+
   export let title;
-  export let data;
+  let data = $page.data.data;
 
   let sortBy = { col: "id", ascending: true };
   let symbolMap = {};

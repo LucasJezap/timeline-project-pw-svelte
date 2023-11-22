@@ -6,7 +6,8 @@
   import MultiSelect from "svelte-multiselect";
   import { getCookie, setCookie } from "svelte-cookie";
   import { onMount } from "svelte";
-  import { changeUser, getUser } from "$lib/js/users";
+  import { changeUser } from "$lib/js/users";
+  import { page } from '$app/stores';
   import {
     Dropdown,
     DropdownItem,
@@ -33,9 +34,8 @@
   }
 
   let filters = {};
-  let userId = 1;
-  let user = getUser(userId);
-  let upcomingEvents = getUpcomingEvents(user["id"]);
+  let user = $page.data.user; 
+  let upcomingEvents = $page.data.upcomingEvents;
   let sortBy = "";
 
   onMount(() => {
@@ -62,8 +62,9 @@
   });
 
   const nextUser = function () {
-    user = changeUser(user["id"]);
+    user = changeUser();
     upcomingEvents = getUpcomingEvents(user["id"]);
+    router.redirect("/");
   };
 
   let fallbackImage = "images/undraw_profile.svg";
@@ -83,6 +84,7 @@
     &#8801;
   </button>
 
+  {#if $page.data.showFilterAndSort !== undefined }
   <div class="topbar-divider d-none d-sm-block" />
 
   <!-- Topbar Search -->
@@ -118,6 +120,7 @@
       {/each}
     </DropdownMenu>
   </Dropdown>
+  {/if}
 
   <!-- Topbar Navbar -->
   <ul class="navbar-nav ml-auto">
@@ -171,7 +174,7 @@
       >
         <h6 class="dropdown-header">Alerts Center</h6>
         {#each upcomingEvents as event}
-          <a class="dropdown-item d-flex align-items-center" href="#/">
+          <a class="dropdown-item d-flex align-items-center" target="_blank" href="https://www.cinema-city.pl/search?query={event["title"]}">
             <div class="mr-3">
               <div class="icon-circle bg-primary">
                 <i class="fas fa-file-alt text-white" />
@@ -239,44 +242,6 @@
     </li>
   </ul>
 </nav>
-
-<!-- Logout Modal-->
-<div
-  class="non-printable modal fade"
-  id="logoutModal"
-  tabindex="-1"
-  role="dialog"
-  aria-labelledby="exampleModalLabel"
-  aria-hidden="true"
->
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="exampleModalLabel">Ready to Leave?</h5>
-        <button
-          class="close"
-          type="button"
-          data-dismiss="modal"
-          aria-label="Close"
-        >
-          <span aria-hidden="true">×</span>
-        </button>
-      </div>
-      <div class="modal-body">
-        Select "Logout" below if you are ready to end your current session.
-      </div>
-      <form action="#/" method="post" style="display: inline" class="">
-        @csrf
-        <div class="modal-footer">
-          <button class="btn btn-secondary" type="button" data-dismiss="modal"
-            >Cancel</button
-          >
-          <button class="btn btn-primary" type="submit">Logout</button>
-        </div>
-      </form>
-    </div>
-  </div>
-</div>
 
 <!-- Filter Modal Start-->
 <div

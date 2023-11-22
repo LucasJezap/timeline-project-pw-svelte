@@ -9,8 +9,6 @@ export var users = [
     phone: "123456789",
     company: "Test Company",
     avatar: "avatars/1.png",
-    created: new Date(),
-    updated: new Date(),
   },
   {
     id: 2,
@@ -22,23 +20,22 @@ export var users = [
     phone: "987654321",
     company: "Probe Company",
     avatar: "avatars/2.webp",
-    created: new Date(),
-    updated: new Date(),
   },
 ];
 
 var usersCount = users.length;
+var currentUser = 1;
 
-export function changeUser(userId: number) {
-  userId = (userId % usersCount) + 1;
-  return getUser(userId);
+export function changeUser() {
+  currentUser = (currentUser % usersCount) + 1;
+  return getUser();
 }
 
-export function getUser(userId: number) {
+export function getUser() {
   let user;
 
   users.forEach(function (u) {
-    if (u["id"] === userId) {
+    if (u["id"] === currentUser) {
       user = u;
     }
   });
@@ -47,7 +44,6 @@ export function getUser(userId: number) {
 }
 
 export function saveUser(
-  userId: number,
   name: string,
   first_name: string,
   last_name: string,
@@ -55,7 +51,7 @@ export function saveUser(
   company: string
 ) {
   users.forEach(function (us) {
-    if (us["id"] === userId) {
+    if (us["id"] === currentUser) {
       us.name = name;
       us.first_name = first_name;
       us.last_name = last_name;
@@ -65,17 +61,17 @@ export function saveUser(
   });
 }
 
-export function uploadUserImage(userId: number, image: string) {
+export function uploadUserImage(image: string) {
   users.forEach(function (us) {
-    if (us["id"] === userId) {
+    if (us["id"] === currentUser) {
       us.avatar = image;
     }
   });
 }
 
-export function changePassword(userId: number, password: string) {
+export function changePassword(password: string) {
   users.forEach(function (us) {
-    if (us["id"] === userId) {
+    if (us["id"] === currentUser) {
       us.password = password;
     }
   });

@@ -16,8 +16,6 @@ export var timelineEvents = [
     start: new Date("2023-11-17 00:00:00Z"),
     end: new Date("2023-11-30 00:00:00Z"),
     image: "images/1.webp",
-    created: new Date(),
-    updated: new Date(),
   },
   {
     id: 2,
@@ -28,8 +26,6 @@ export var timelineEvents = [
     start: new Date("2023-11-03 00:00:00Z"),
     end: new Date("2023-11-20 00:00:00Z"),
     image: "images/2.webp",
-    created: new Date(),
-    updated: new Date(),
   },
   {
     id: 3,
@@ -40,8 +36,6 @@ export var timelineEvents = [
     start: new Date("2023-11-22 00:00:00Z"),
     end: new Date("2023-12-06 00:00:00Z"),
     image: "images/3.webp",
-    created: new Date(),
-    updated: new Date(),
   },
   {
     id: 4,
@@ -52,8 +46,6 @@ export var timelineEvents = [
     start: new Date("2023-11-24 00:00:00Z"),
     end: new Date("2023-12-17 00:00:00Z"),
     image: "images/4.webp",
-    created: new Date(),
-    updated: new Date(),
   },
   {
     id: 5,
@@ -64,8 +56,6 @@ export var timelineEvents = [
     start: new Date("2023-12-01 00:00:00Z"),
     end: new Date("2023-12-31 00:00:00Z"),
     image: "images/5.webp",
-    created: new Date(),
-    updated: new Date(),
   },
   {
     id: 6,
@@ -76,8 +66,6 @@ export var timelineEvents = [
     start: new Date("2023-12-24 00:00:00Z"),
     end: new Date("2024-01-11 00:00:00Z"),
     image: "images/6.webp",
-    created: new Date(),
-    updated: new Date(),
   },
   {
     id: 7,
@@ -88,8 +76,6 @@ export var timelineEvents = [
     start: new Date("2024-03-15 00:00:00Z"),
     end: new Date("2024-04-15 00:00:00Z"),
     image: "images/7.webp",
-    created: new Date(),
-    updated: new Date(),
   },
   {
     id: 8,
@@ -100,8 +86,6 @@ export var timelineEvents = [
     start: new Date("2023-12-21 00:00:00Z"),
     end: new Date("2024-01-17 00:00:00Z"),
     image: "images/8.webp",
-    created: new Date(),
-    updated: new Date(),
   },
   {
     id: 9,
@@ -112,8 +96,6 @@ export var timelineEvents = [
     start: new Date("2023-11-10 00:00:00Z"),
     end: new Date("2023-11-30 00:00:00Z"),
     image: "images/9.webp",
-    created: new Date(),
-    updated: new Date(),
   },
 ];
 
@@ -137,8 +119,6 @@ export function addEvent(
     start: new Date(start),
     end: new Date(end),
     image: "",
-    created: new Date(),
-    updated: new Date(),
   });
 
   if (categories !== "") {

@@ -1,8 +1,9 @@
 import { addCategory, deleteCategory, getCategory, saveCategory } from "$lib/js/categories";
-import { error, fail, redirect } from "@sveltejs/kit";
-import { writeFileSync } from "fs";
+import { error, redirect } from "@sveltejs/kit";
+import { getUser } from "$lib/js/users"
+import { getUpcomingEvents } from "$lib/js/timeline-events";
 
-export function load({ params }) {
+export async function load({ params }) {
   const categoryId = parseInt(params.id);
   let category = getCategory(categoryId);
 
@@ -12,15 +13,18 @@ export function load({ params }) {
       name: "",
       description: "",
       color: "",
-      created: new Date(),
-      updated: new Date(),
     };
   }
 
   if (category === undefined) throw error(404);
 
+  let user = getUser();
+  let upcomingEvents = getUpcomingEvents(user["id"]);
+
   return {
     category: category,
+    user,
+    upcomingEvents,
   };
 }
 

@@ -30,7 +30,7 @@
     }
   });
 
-  let fallbackImage = "images/undraw_poster.png";
+  let fallbackImage = "undraw_poster.png";
 
   const handleImageError = (ev) => (ev.target.src = fallbackImage);
 </script>

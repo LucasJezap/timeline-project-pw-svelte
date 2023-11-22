@@ -1,23 +1,26 @@
 import { getUser, saveUser, uploadUserImage } from "$lib/js/users";
 import { error, fail } from "@sveltejs/kit";
 import { writeFileSync } from "fs";
+import { getUpcomingEvents } from "$lib/js/timeline-events";
 
 export function load({ params }) {
-  const user = getUser(parseInt(params.id));
+  const user = getUser();
 
   if (user === undefined) throw error(404);
 
+  let upcomingEvents = getUpcomingEvents(user["id"]);
+
   return {
     user: user,
+    upcomingEvents,
   };
 }
 
 export const actions = {
-  save: async ({ request, params }) => {
+  save: async ({ request }) => {
     const data = await request.formData();
 
     saveUser(
-      parseInt(params.id),
       data.get("name"),
       data.get("first_name"),
       data.get("last_name"),
@@ -44,6 +47,6 @@ export const actions = {
       Buffer.from(await formData.file.arrayBuffer())
     );
 
-    uploadUserImage(parseInt(params.id), filename);
+    uploadUserImage(filename);
   },
 };

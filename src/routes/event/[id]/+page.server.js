@@ -5,10 +5,12 @@ import {
   getEvent,
   uploadEventImage,
   deleteEvent,
+  getUpcomingEvents,
 } from "$lib/js/timeline-events";
 import { getTimelineEventCategories } from "$lib/js/timeline-events-categories";
 import { error, fail, redirect } from "@sveltejs/kit";
 import { writeFileSync } from "fs";
+import { getUser } from "$lib/js/users"
 
 export function load({ params }) {
   const eventId = parseInt(params.id);
@@ -23,8 +25,6 @@ export function load({ params }) {
       start: new Date(),
       end: new Date(),
       image: "",
-      created: new Date(),
-      updated: new Date(),
     };
   }
 
@@ -42,9 +42,14 @@ export function load({ params }) {
     });
   });
 
+  let user = getUser();
+  let upcomingEvents = getUpcomingEvents(user["id"]);
+
   return {
     event: event,
     categories: allCategories,
+    user,
+    upcomingEvents,
   };
 }
 

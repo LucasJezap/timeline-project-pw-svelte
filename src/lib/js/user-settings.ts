@@ -1,21 +1,15 @@
-import { getUser } from "./users";
-
 export let userSettings = [
   {
     id: 1,
     user: 1,
     notificationDaysBefore: 1,
     notificationDaysAfter: 7,
-    created: new Date(),
-    updated: new Date(),
   },
   {
     id: 2,
     user: 2,
     notificationDaysBefore: 5,
     notificationDaysAfter: 14,
-    created: new Date(),
-    updated: new Date(),
   },
 ];
 
