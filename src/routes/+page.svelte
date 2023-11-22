@@ -1,5 +1,15 @@
 <script>
+  import { getCookie } from "svelte-cookie";
+  import { onMount } from "svelte";
+
   export let data;
+  let sortBy = "";
+  let events = data["timelineEvents"];
+
+  onMount(() => {
+    sortBy = getCookie("sort_by");
+    events = [...data["timelineEvents"]].sort((a, b) => a[sortBy] - b[sortBy]);
+  });
 
   let fallbackImage = "images/undraw_poster.png";
 
@@ -12,7 +22,7 @@
 
 <div class="container py-5">
   <div class="main-timeline-4 text-white">
-    {#each [...data["timelineEvents"]].sort((a, b) => a["start"].getTime() - b["start"].getTime()) as event, key}
+    {#each events as event, key}
       <div class={key % 2 == 0 ? "timeline-4 left-4" : "timeline-4 right-4"}>
         <div
           class={key % 2 == 0

@@ -3,7 +3,7 @@ import { getTimelineEventCategories } from "$lib/js/timeline-events-categories";
 import { error } from "@sveltejs/kit";
 
 export function load({ cookies }) {
-  const filters = ["title", "description", "from", "to"];
+  const filters = ["title", "description", "from", "to", "category"];
   let filterMap = {};
   filters.forEach((filter) => {
     let cookieName = "filter_" + filter;
@@ -29,7 +29,7 @@ export const actions = {
   addFilters: async ({ request, cookies }) => {
     const data = await request.formData();
 
-    const filters = ["title", "description", "from", "to"];
+    const filters = ["title", "description", "from", "to", "category"];
 
     filters.forEach((filter) => {
       let cookieName = "filter_" + filter;
@@ -43,11 +43,22 @@ export const actions = {
   },
 
   deleteFilters: async ({ cookies }) => {
-    const filters = ["title", "description", "from", "to"];
+    const filters = ["title", "description", "from", "to", "category"];
 
     filters.forEach((filter) => {
       let cookieName = "filter_" + filter;
       cookies.delete(cookieName, { path: "/" });
     });
+  },
+
+  sort: async ({ cookies }) => {
+    const data = await request.formData();
+    console.log(data);
+    let cookieName = "sort_by";
+    // cookies.set(cookieName, String(v), {
+    //   path: "/",
+    //   maxAge: 60 * 60 * 24 * 365,
+    //   httpOnly: false, // <-- if you want to read it in the browser
+    // });
   },
 };

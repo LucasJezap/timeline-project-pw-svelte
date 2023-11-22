@@ -1,9 +1,11 @@
 <script>
   import "$lib/css/profile.css";
   export let data;
+  let fileName = "";
 
   let fallbackImage = "undraw_profile.png";
   const handleImageError = (ev) => (ev.target.src = fallbackImage);
+  const handleImageUpload = (ev) => (fileName = ev.target.files[0].name);
 </script>
 
 <svelte:head>
@@ -24,9 +26,13 @@
       <p>Accepted file type .png.</p>
       <form action="?/upload" method="post" enctype="multipart/form-data">
         <label for="file-upload" class="custom-file-upload">
-          <i class="fa fa-cloud-upload" /> Upload Image
+          {#if fileName === ""}
+            <i class="fa fa-cloud-upload" /> Upload Image
+          {:else}
+            <i class="fa fa-cloud-upload" /> {fileName}
+          {/if}
         </label>
-        <input id="file-upload" name="file" type="file" style="display:none;" />
+        <input id="file-upload" name="file" type="file" style="display:none;" on:change={handleImageUpload} />
         <input
           type="submit"
           value="Save Avatar"

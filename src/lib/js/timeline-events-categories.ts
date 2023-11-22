@@ -155,17 +155,21 @@ export function getTimelineEventCategories(timelineEvent: number) {
 }
 
 export function deleteByEvent(timelineEvent: number) {
+  let newTimelineEventsCategories = [];
   timelineEventsCategories.forEach(function (timelineEventCategory, idx) {
-    if (timelineEventCategory["timelineEvent"] === timelineEvent) {
-      timelineEventsCategories.splice(idx, 1);
+    if (timelineEventCategory["timelineEvent"] !== timelineEvent) {
+      newTimelineEventsCategories = [...newTimelineEventsCategories, timelineEventsCategories[idx]];
     }
   });
+  timelineEventsCategories = newTimelineEventsCategories;
 }
 
 export function deleteByCategory(category: number) {
+  let newTimelineEventsCategories = [];
   timelineEventsCategories.forEach(function (timelineEventCategory, idx) {
-    if (timelineEventCategory["category"] === category) {
-      timelineEventsCategories.splice(idx, 1);
+    if (timelineEventCategory["category"] !== category) {
+      newTimelineEventsCategories = [...newTimelineEventsCategories, timelineEventsCategories[idx]];
     }
   });
+  timelineEventsCategories = newTimelineEventsCategories;
 }

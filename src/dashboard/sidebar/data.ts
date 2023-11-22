@@ -22,18 +22,6 @@ export const data = [
 		icon: 'fa-solid fa-file',
 		content: [
 			{
-				title: 'Login',
-				link: '/login'
-			},
-			{
-				title: 'Register',
-				link: '/register'
-			},
-			{
-				title: 'Forgot Password',
-				link: '/forgot'
-			},
-			{
 				title: 'Dashboard',
 				link: '/'
 			},

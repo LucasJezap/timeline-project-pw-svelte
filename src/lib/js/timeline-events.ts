@@ -1,5 +1,10 @@
-import { deleteByEvent } from "./timeline-events-categories";
+import {
+  deleteByEvent,
+  addTimelineEventCategory,
+  getTimelineEventCategories,
+} from "./timeline-events-categories";
 import { getUserSettings } from "./user-settings";
+import { getCategoryByName } from "./categories";
 
 export var timelineEvents = [
   {
@@ -118,6 +123,7 @@ export function addEvent(
   user: number,
   title: string,
   description: string,
+  categories: string,
   start: Date,
   end: Date
 ) {
@@ -134,6 +140,16 @@ export function addEvent(
     created: new Date(),
     updated: new Date(),
   });
+
+  if (categories !== "") {
+    JSON.parse(categories).forEach((category) => {
+      let cat = getCategoryByName(category);
+
+      if (cat !== undefined) {
+        addTimelineEventCategory(timelineEventId, cat["id"]);
+      }
+    });
+  }
 
   return timelineEventId;
 }
@@ -154,6 +170,7 @@ export function saveEvent(
   eventId: number,
   title: string,
   description: string,
+  categories: string,
   start: Date,
   end: Date
 ) {
@@ -163,6 +180,17 @@ export function saveEvent(
       ev.description = description;
       ev.start = start;
       ev.end = end;
+
+      if (categories !== "") {
+        deleteByEvent(ev["id"]);
+        JSON.parse(categories).forEach((category) => {
+          let cat = getCategoryByName(category);
+
+          if (cat !== undefined) {
+            addTimelineEventCategory(ev["id"], cat["id"]);
+          }
+        });
+      }
     }
   });
 }
@@ -205,6 +233,23 @@ export function getFilteredEvents(filters) {
       if (key === "to" && ev["start"] > new Date(String(value))) {
         isFilteredOut = true;
       }
+
+      if (key === "category" && value !== "") {
+        const evCategories = getTimelineEventCategories(ev["id"]);
+        let toFilterOut = true;
+
+        JSON.parse(String(value)).forEach((category) => {
+          let cat = getCategoryByName(category);
+  
+          if (evCategories.includes(cat)) {
+            toFilterOut = false;
+          };
+        });
+
+        if (toFilterOut) {
+          isFilteredOut = true;
+        }
+      }
     }
 
     if (!isFilteredOut) {
@@ -215,8 +260,7 @@ export function getFilteredEvents(filters) {
   return filteredEvents;
 }
 
-export function getUpcomingEvents() {
-  let userId = 1;
+export function getUpcomingEvents(userId: number) {
   let userSettings = getUserSettings(userId);
   let now = Date.now();
   let from = now - 1000 * 3600 * 24 * userSettings["notificationDaysBefore"];

@@ -1,3 +1,5 @@
+import { getUser } from "./users";
+
 export let userSettings = [
   {
     id: 1,
@@ -10,34 +12,12 @@ export let userSettings = [
   {
     id: 2,
     user: 2,
-    notificationDaysBefore: 1,
-    notificationDaysAfter: 7,
+    notificationDaysBefore: 5,
+    notificationDaysAfter: 14,
     created: new Date(),
     updated: new Date(),
   },
 ];
-
-var userSettingsId = userSettings.length;
-
-export function addUserSettings(
-  user: number,
-  notificationDaysBefore: number,
-  notificationDaysAfter: number
-) {
-  userSettingsId += 1;
-
-  userSettings = [
-    ...userSettings,
-    {
-      id: userSettingsId,
-      user: user,
-      notificationDaysBefore: notificationDaysBefore,
-      notificationDaysAfter: notificationDaysAfter,
-      created: new Date(),
-      updated: new Date(),
-    },
-  ];
-}
 
 export function getUserSettings(userId: number) {
   let settings;

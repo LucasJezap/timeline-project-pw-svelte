@@ -113,6 +113,18 @@ export function getCategory(categoryId: number) {
   return category;
 }
 
+export function getCategoryByName(categoryName: string) {
+  let category;
+
+  categories.forEach(function (cat) {
+    if (cat["name"] === categoryName) {
+      category = cat;
+    }
+  });
+
+  return category;
+}
+
 export function saveCategory(
   categoryId: number,
   name: string,

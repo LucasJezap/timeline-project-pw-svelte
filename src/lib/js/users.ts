@@ -27,31 +27,18 @@ export var users = [
   },
 ];
 
-var userId = users.length;
+var usersCount = users.length;
 
-export function addUser(name: string, email: string, password: string) {
-  userId += 1;
-
-  users.push({
-    id: userId,
-    name: name,
-    email: email,
-    password: password,
-    first_name: "",
-    last_name: "",
-    phone: "",
-    company: "",
-    avatar: "",
-    created: new Date(),
-    updated: new Date(),
-  });
+export function changeUser(userId: number) {
+  userId = (userId % usersCount) + 1;
+  return getUser(userId);
 }
 
 export function getUser(userId: number) {
   let user;
 
   users.forEach(function (u) {
-    if (u["id"] === 1) {
+    if (u["id"] === userId) {
       user = u;
     }
   });

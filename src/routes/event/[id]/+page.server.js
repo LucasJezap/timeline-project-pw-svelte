@@ -56,6 +56,7 @@ export const actions = {
       parseInt(params.id),
       String(data.get("title")),
       String(data.get("description")),
+      String(data.get("category")),
       new Date(data.get("start") + "Z"),
       new Date(data.get("end") + "Z")
     );
@@ -68,6 +69,7 @@ export const actions = {
       1,
       String(data.get("title")),
       String(data.get("description")),
+      String(data.get("category")),
       new Date(data.get("start") + "Z"),
       new Date(data.get("end") + "Z")
     );

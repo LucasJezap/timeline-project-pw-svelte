@@ -1,18 +1,72 @@
 <script>
   import { toggleSidebar } from "./store";
   import { getUpcomingEvents } from "$lib/js/timeline-events";
-  import { getCookie } from "svelte-cookie";
+  import { categories, getCategoryByName } from "$lib/js/categories";
+  import MultiSelect from "svelte-multiselect";
+  import { getCookie, setCookie } from "svelte-cookie";
   import { onMount } from "svelte";
+  import { changeUser, getUser } from "$lib/js/users";
+  import {
+    Dropdown,
+    DropdownItem,
+    DropdownMenu,
+    DropdownToggle,
+  } from "sveltestrap";
 
-  let upcomingEvents = getUpcomingEvents();
+  let searchText = "";
+  let loading = false;
+  let options = [];
+  let selected = [];
+  categories.forEach((category) => {
+    options = [...options, category["name"]];
+    if (category["check"]) {
+      selected = [...selected, category["name"]];
+    }
+  });
+
+  $: if (searchText) {
+    loading = true;
+    setTimeout(async () => {
+      loading = false;
+    }, 1000);
+  }
+
   let filters = {};
+  let userId = 1;
+  let user = getUser(userId);
+  let upcomingEvents = getUpcomingEvents(user["id"]);
+  let sortBy = "";
 
   onMount(() => {
+    sortBy = getCookie("sort_by");
     filters["filter_title"] = getCookie("filter_title");
     filters["filter_description"] = getCookie("filter_description");
     filters["filter_from"] = getCookie("filter_from");
     filters["filter_to"] = getCookie("filter_to");
+    filters["filter_category"] = [];
+
+    let cookieCategories = getCookie("filter_category");
+    if (cookieCategories !== "") {
+      JSON.parse(getCookie("filter_category")).forEach((category) => {
+        let cat = getCategoryByName(category);
+
+        if (cat !== undefined) {
+          filters["filter_category"] = [
+            ...filters["filter_category"],
+            cat["name"],
+          ];
+        }
+      });
+    }
   });
+
+  const nextUser = function () {
+    user = changeUser(user["id"]);
+    upcomingEvents = getUpcomingEvents(user["id"]);
+  };
+
+  let fallbackImage = "images/undraw_profile.svg";
+  const handleImageError = (ev) => (ev.target.src = fallbackImage);
 </script>
 
 <nav
@@ -22,21 +76,13 @@
     type="button"
     aria-expanded="false"
     aria-label="Toggle sidebar"
-    class="text-4xl text-black focus:outline-none"
+    class="text-4xl text-black focus:outline-none m-3"
     on:click={toggleSidebar}
   >
     &#8801;
   </button>
 
   <div class="topbar-divider d-none d-sm-block" />
-
-  <!-- Sidebar Toggle (Topbar) -->
-  <button
-    id="sidebarToggleTop"
-    class="btn btn-link d-md-none rounded-circle mr-3"
-  >
-    <i class="fa fa-bars" />
-  </button>
 
   <!-- Topbar Search -->
   <button
@@ -47,21 +93,27 @@
   >
     Filter
   </button>
+
+  <div class="topbar-divider d-none d-sm-block" />
+
+  <Dropdown>
+    <DropdownToggle caret color="danger">Sort By</DropdownToggle>
+    <DropdownMenu>
+      {#each ["title", "start", "end", "description"] as value}
+        <DropdownItem active={value === sortBy} on:click={() => {
+          sortBy = value;
+          setCookie("sort_by", value, 365, true);
+        }}>
+          {value}
+        </DropdownItem>
+      {/each}
+    </DropdownMenu>
+  </Dropdown>
+
   <!-- Topbar Navbar -->
   <ul class="navbar-nav ml-auto">
     <!-- Nav Item - Search Dropdown (Visible Only XS) -->
     <li class="nav-item dropdown no-arrow d-sm-none">
-      <a
-        class="nav-link dropdown-toggle"
-        href="#/"
-        id="searchDropdown"
-        role="button"
-        data-toggle="dropdown"
-        aria-haspopup="true"
-        aria-expanded="false"
-      >
-        <i class="fas fa-search fa-fw" />
-      </a>
       <!-- Dropdown - Messages -->
       <div
         class="dropdown-menu dropdown-menu-right p-3 shadow animated--grow-in"
@@ -137,46 +189,45 @@
 
     <!-- Nav Item - User Information -->
     <li class="nav-item dropdown no-arrow">
-      <!-- <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
-                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                  <span
-                      class="mr-2 d-none d-lg-inline text-gray-600 small"><?= auth()->user()->name ?></span>
-                  <img class="img-profile rounded-circle"
-                       onerror="this.onerror=null; this.src='{{ URL::to('images/undraw_profile.svg') }}'"
-                       src="{{asset('storage/' . $user->avatar)}}">
-
-              </a> -->
+      <a
+        class="nav-link dropdown-toggle"
+        href="#/"
+        id="userDropdown"
+        role="button"
+        data-toggle="dropdown"
+        aria-haspopup="true"
+        aria-expanded="false"
+      >
+        <span class="mr-2 d-none d-lg-inline text-gray-600 small"
+          >{user["name"]}</span
+        >
+        <img
+          class="img-profile rounded-circle"
+          on:error={handleImageError}
+          src={"/profile/" + user["avatar"]}
+          alt="..."
+        />
+      </a>
       <!-- Dropdown - User Information -->
       <div
         class="dropdown-menu dropdown-menu-right shadow animated--grow-in"
         aria-labelledby="userDropdown"
       >
-        <a class="dropdown-item" href="#/">
+        <a class="dropdown-item" href="/profile/{user['id']}">
           <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400" />
           Profile
         </a>
-        <a class="dropdown-item" href="#/">
+        <a class="dropdown-item" href="/settings/{user['id']}">
           <i class="fas fa-cogs fa-sm fa-fw mr-2 text-gray-400" />
           Settings
         </a>
         <div class="dropdown-divider" />
-        <a
-          class="dropdown-item"
-          href="#/"
-          data-toggle="modal"
-          data-target="#logoutModal"
-        >
+        <a href="#/" class="dropdown-item" on:click={nextUser}>
           <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400" />
-          Logout
+          Change to next user
         </a>
       </div>
     </li>
-    <div class="container">
-      <a class="btn btn-success btn-sm" href="#/">
-        <i class="fas fa-sign-in-alt fa-sm fa-fw mr-2 text-gray-400" />
-        Login
-      </a>
-    </div>
   </ul>
 </nav>
 
@@ -242,7 +293,7 @@
 
       <!-- Modal Body -->
       <div class="modal-body">
-        <div class="container-fluid">
+        <div class="container">
           <form method="post" class="form-inline" id="filter_form">
             <div class="col-md-12">
               <div class="form-group">
@@ -258,19 +309,6 @@
                 />
               </div>
             </div>
-
-            <!-- <div class="col-md-12" style="margin-top: 20px">
-                            <div class="form-group">
-                                <label for="category">Category</label>
-                                <select multiple class="form-control" id="category" name="category[]"
-                                        aria-label="category"
-                                        style="width:100%;">
-                                    <option <?php if (isset($_COOKIE['filter_category']) && str_contains($_COOKIE['filter_category'], $category->name)) {
-                                        echo "selected";
-                                    } ?> value="<?= $category->name ?>"><?= $category->name ?></option>
-                                </select>
-                            </div>
-                        </div> -->
 
             <div class="col-md-12" style="margin-top: 20px">
               <div class="form-group">
@@ -314,6 +352,22 @@
                   style="width:100%;"
                   value={filters["filter_to"]}
                 />
+              </div>
+            </div>
+
+            <div class="col-md-12" style="margin-top: 20px">
+              <div class="form-group">
+                <label for="category">Category</label>
+                <div class="container-fluid">
+                  <MultiSelect
+                    id="category"
+                    name="category"
+                    bind:options
+                    bind:selected={filters["filter_category"]}
+                    bind:searchText
+                    {loading}
+                  />
+                </div>
               </div>
             </div>
 
