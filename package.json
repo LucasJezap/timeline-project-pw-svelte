@@ -1,10 +1,9 @@
 {
-	"name": "salvia-kit-dashboard-v10-svelte",
+	"name": "timeline-manager",
 	"version": "1.0.0",
 	"author": {
-		"name": "Enoch Ndika"
+		"name": "Łukasz Jezapkowicz"
 	},
-	"license": "MIT",
 	"keywords": [
 		"ui",
 		"components",
