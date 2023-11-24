@@ -1,8 +1,9 @@
 <script>
   import "$lib/css/profile.css";
-  import { goto } from '$app/navigation';
+  import { goto } from "$app/navigation";
   import { page } from "$app/stores";
   import { getUser, saveUser } from "$lib/js/users";
+  import { error } from "@sveltejs/kit";
 
   if (getUser()["id"] !== parseInt($page.params.id)) {
     goto("/");
@@ -15,23 +16,36 @@
   const handleImageError = (ev) => (ev.target.src = fallbackImage);
   const handleImageUpload = (ev) => (fileName = ev.target.files[0].name);
 
-  const saveSubmit = function(e) {
+  let submitMessages = {
+    "errors": [],
+    "success": "",
+  };
+  const saveSubmit = function (e) {
     const formData = new FormData(e.target);
-    
+
+    let name = formData.get("name");
+    if (name === "" || name === null || name === undefined) {
+      submitMessages["errors"] = [...submitMessages["errors"], "Name is required!"] ;
+    }
+
+    if (submitMessages["errors"]) {
+      return;
+    }
+
     saveUser(
-      String(formData.get("name")),
+      String(name),
       String(formData.get("first_name")),
       String(formData.get("last_name")),
       String(formData.get("phone")),
-      String(formData.get("company")),
+      String(formData.get("company"))
     );
 
-    window.location.reload();
-  }
+    // window.location.reload();
+  };
 
-  const uploadSubmit = function() {    
+  const uploadSubmit = function () {
     goto("/");
-  }
+  };
 </script>
 
 <svelte:head>
@@ -39,6 +53,22 @@
 </svelte:head>
 
 <div class="wrapper bg-white mt-sm-5">
+  {#if submitMessages["errors"].length > 0}
+  <div class="alert alert-danger">
+    <ul>
+      {#each submitMessages["errors"] as message}
+        <li>{message}</li>
+      {/each}
+    </ul>
+    </div>
+  {/if}
+  {#if submitMessages["success"] !== ""}
+  <div class="alert alert-success">
+    <ul>
+        <li>{message}</li>
+    </ul>
+    </div>
+  {/if}
   <h4 class="pb-4 border-bottom">Profile</h4>
   <div class="d-flex align-items-start py-3 border-bottom">
     <img
@@ -50,7 +80,10 @@
     <div class="pl-sm-2 pl-2" id="img-section">
       <b>Profile Photo</b>
       <p>Accepted file type .png.</p>
-      <form on:submit|preventDefault={uploadSubmit} enctype="multipart/form-data">
+      <form
+        on:submit|preventDefault={uploadSubmit}
+        enctype="multipart/form-data"
+      >
         <label for="file-upload" class="custom-file-upload">
           {#if fileName === ""}
             <i class="fa fa-cloud-upload" /> Upload Image
@@ -58,7 +91,13 @@
             <i class="fa fa-cloud-upload" /> {fileName}
           {/if}
         </label>
-        <input id="file-upload" name="file" type="file" style="display:none;" on:change={handleImageUpload} />
+        <input
+          id="file-upload"
+          name="file"
+          type="file"
+          style="display:none;"
+          on:change={handleImageUpload}
+        />
         <input
           type="submit"
           value="Save Avatar"

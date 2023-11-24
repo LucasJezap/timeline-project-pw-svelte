@@ -10,7 +10,7 @@ export var timelineEvents = [
   {
     id: 1,
     user: 1,
-    title: "Dziwne ścieżki życia",
+    title: "Dziwne ścieżki życia TEST",
     description:
       "Silva (Pedro Pascal) wyrusza konno przez pustynię w odwiedziny do znajomego szeryfa Jake'a (Ethan Hawke). Dwadzieścia pięć lat wcześniej zarówno szeryf, jak i Silva pracowali razem jako najemnicy. Silva odwiedza go, aby powspominać stare dzieje i tego wieczoru świętują swoje spotkanie. Po wspólnie spędzonej  nocy Jake zdaje sobie sprawę, że powodem odwiedzin Silvy nie są wspomnienia  ich starej znajomości. To zupełnie inny powód, który poznamy w kinach 17 listopada 2023r.",
     start: new Date("2023-11-17 00:00:00Z"),
