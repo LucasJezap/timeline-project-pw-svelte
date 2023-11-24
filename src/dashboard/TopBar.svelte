@@ -8,7 +8,7 @@
   } from "$lib/js/categories";
   import MultiSelect from "svelte-multiselect";
   import { onMount } from "svelte";
-  import { changeUser, initUsers } from "$lib/js/users";
+  import { changeUser, initUsers, getUser } from "$lib/js/users";
   import { page } from "$app/stores";
   import { initUserSettings } from "$lib/js/user-settings";
   import { initTimelineEventCategories } from "$lib/js/timeline-events-categories";
@@ -135,6 +135,7 @@
       initEvents(true);
       initTimelineEventCategories(true);
       initCategories(true);
+      user = getUser();
       goto("/");
     }}
   >

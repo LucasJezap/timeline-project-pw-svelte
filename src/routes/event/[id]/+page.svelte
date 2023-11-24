@@ -1,7 +1,7 @@
 <script>
   import "$lib/css/event.css";
   import MultiSelect from "svelte-multiselect";
-  import { goto } from '$app/navigation';
+  import { goto } from "$app/navigation";
   import { page } from "$app/stores";
   import { saveEvent, deleteEvent, addEvent } from "$lib/js/timeline-events";
   import { getUser } from "$lib/js/users";
@@ -11,8 +11,8 @@
   let searchText = "";
   let loading = false;
   let options = [];
-  let selected = []
-  data["categories"].forEach(category => {
+  let selected = [];
+  data["categories"].forEach((category) => {
     options = [...options, category["name"]];
     if (category["check"]) {
       selected = [...selected, category["name"]];
@@ -32,8 +32,13 @@
   const handleImageError = (ev) => (ev.target.src = fallbackImage);
   const handleImageUpload = (ev) => (fileName = ev.target.files[0].name);
 
+  let submitMessages = {
+    errors: [],
+    success: "",
+  };
+
   let submitFunction = "";
-  const submit = function(e) {
+  const submit = function (e) {
     if (submitFunction === "add") {
       addSubmit(e);
     } else if (submitFunction === "save") {
@@ -41,47 +46,149 @@
     } else if (submitFunction === "delete") {
       deleteSubmit(e);
     }
-  }
-  
-  const addSubmit = function(e) {
+  };
+
+  const addSubmit = function (e) {
     const formData = new FormData(e.target);
-    
+    submitMessages["errors"] = [];
+
+    submitMessages["errors"] = [];
+
+    let title = formData.get("title");
+    if (title === "" || title === null || title === undefined) {
+      submitMessages["errors"] = [
+        ...submitMessages["errors"],
+        "Title is required!",
+      ];
+    }
+
+    let start = new Date(formData.get("start") + "Z");
+    if (isNaN(start)) {
+      submitMessages["errors"] = [
+        ...submitMessages["errors"],
+        "Start Date is required!",
+      ];
+    }
+
+    let end = new Date(formData.get("end") + "Z");
+    if (isNaN(end)) {
+      submitMessages["errors"] = [
+        ...submitMessages["errors"],
+        "End Date is required!",
+      ];
+    }
+
+    if (start.getTime() >= end.getTime()) {
+      submitMessages["errors"] = [
+        ...submitMessages["errors"],
+        "End Date must be after Start Date!",
+      ];
+    }
+
+    let category = formData.get("category");
+    if (category === "[]") {
+      submitMessages["errors"] = [
+        ...submitMessages["errors"],
+        "Categories are required!",
+      ];
+    }
+
+    if (submitMessages["errors"].length > 0) {
+      return;
+    }
+
     let event = addEvent(
       getUser()["id"],
-      String(formData.get("title")),
+      String(title),
       String(formData.get("description")),
-      String(formData.get("category")),
-      new Date(formData.get("start") + "Z"),
-      new Date(formData.get("end") + "Z")
+      String(category),
+      start,
+      end
     );
 
-    goto("/event/" + event)
-  }
+    submitMessages["success"] = "Added successfully";
+    setTimeout(() => {
+      submitMessages["success"] = "";
+    }, 2000);
 
-  const saveSubmit = function(e) {
+    goto("/event/" + event);
+  };
+
+  const saveSubmit = function (e) {
     const formData = new FormData(e.target);
-    
+    submitMessages["errors"] = [];
+
+    let title = formData.get("title");
+    if (title === "" || title === null || title === undefined) {
+      submitMessages["errors"] = [
+        ...submitMessages["errors"],
+        "Title is required!",
+      ];
+    }
+
+    let start = new Date(formData.get("start") + "Z");
+    if (isNaN(start)) {
+      submitMessages["errors"] = [
+        ...submitMessages["errors"],
+        "Start Date is required!",
+      ];
+    }
+
+    let end = new Date(formData.get("end") + "Z");
+    if (isNaN(end)) {
+      submitMessages["errors"] = [
+        ...submitMessages["errors"],
+        "End Date is required!",
+      ];
+    }
+
+    if (start.getTime() >= end.getTime()) {
+      submitMessages["errors"] = [
+        ...submitMessages["errors"],
+        "End Date must be after Start Date!",
+      ];
+    }
+
+    let category = formData.get("category");
+    if (category === "[]") {
+      submitMessages["errors"] = [
+        ...submitMessages["errors"],
+        "Categories are required!",
+      ];
+    }
+
+    if (submitMessages["errors"].length > 0) {
+      return;
+    }
+
     saveEvent(
       parseInt($page.params.id),
-      String(formData.get("title")),
+      String(title),
       String(formData.get("description")),
-      String(formData.get("category")),
-      new Date(formData.get("start") + "Z"),
-      new Date(formData.get("end") + "Z")
-    );
-  }
-
-  const deleteSubmit = function() {    
-    deleteEvent(
-      parseInt($page.params.id)
+      String(category),
+      start,
+      end
     );
 
-    goto("/");
-  }
+    submitMessages["success"] = "Added successfully";
+    setTimeout(() => {
+      submitMessages["success"] = "";
+    }, 2000);
+  };
 
-  const uploadSubmit = function() {    
+  const deleteSubmit = function () {
+    deleteEvent(parseInt($page.params.id));
+
     goto("/");
-  }
+  };
+
+  const uploadSubmit = function () {
+    submitMessages["errors"] = [];
+    submitMessages["errors"] = [
+      ...submitMessages["errors"],
+      "Not available in SPA!",
+    ];
+  };
 </script>
 
 <svelte:head>
@@ -106,7 +213,10 @@
           >
             <div class="pl-sm-4 pl-2" id="img-section">
               <b>Poster</b>
-              <form on:submit|preventDefault={uploadSubmit} enctype="multipart/form-data">
+              <form
+                on:submit|preventDefault={uploadSubmit}
+                enctype="multipart/form-data"
+              >
                 <label for="file-upload" class="custom-file-upload d-block">
                   {#if fileName === ""}
                     <i class="fa fa-cloud-upload" /> Upload Image
@@ -196,31 +306,52 @@
             </div>
           </div>
 
-          <div class="mt-5 text-right">
-            {#if data["event"]["id"] === 0}
-              <button
-                type="submit"
-                class="btn btn-info submitBtn"
-                on:click={() => submitFunction = "add"}
-              >
-                Add Event
-              </button>
-            {:else}
-              <button
-                type="submit"
-                class="btn btn-danger submitBtn"
-                on:click={() => submitFunction = "delete"}
-              >
-                Delete Event
-              </button>
-              <button
-                type="submit"
-                class="btn btn-info submitBtn"
-                on:click={() => submitFunction = "save"}
-              >
-                Save Event
-              </button>
-            {/if}
+          <div class="row py-2">
+            <div class="col-md-6 pt-md-0 pt-3">
+              {#if submitMessages["errors"].length > 0}
+                <div class="alert alert-danger">
+                  <ul>
+                    {#each submitMessages["errors"] as message}
+                      <li>{message}</li>
+                    {/each}
+                  </ul>
+                </div>
+              {:else if submitMessages["success"] !== ""}
+                <div class="alert alert-success">
+                  <ul>
+                    <li>{submitMessages["success"]}</li>
+                  </ul>
+                </div>
+              {/if}
+            </div>
+            <div class="col-md-6 pt-md-0 pt-3">
+              <div class="mt-5 text-right">
+                {#if data["event"]["id"] === 0}
+                  <button
+                    type="submit"
+                    class="btn btn-info submitBtn"
+                    on:click={() => (submitFunction = "add")}
+                  >
+                    Add Event
+                  </button>
+                {:else}
+                  <button
+                    type="submit"
+                    class="btn btn-danger submitBtn"
+                    on:click={() => (submitFunction = "delete")}
+                  >
+                    Delete Event
+                  </button>
+                  <button
+                    type="submit"
+                    class="btn btn-info submitBtn"
+                    on:click={() => (submitFunction = "save")}
+                  >
+                    Save Event
+                  </button>
+                {/if}
+              </div>
+            </div>
           </div>
         </div>
       </form>

@@ -1,13 +1,22 @@
 <script>
   import "$lib/css/event.css";
-  import { goto } from '$app/navigation';
+  import { goto } from "$app/navigation";
   import { page } from "$app/stores";
-  import {addCategory, saveCategory, deleteCategory} from "$lib/js/categories"
+  import {
+    addCategory,
+    saveCategory,
+    deleteCategory,
+  } from "$lib/js/categories";
 
   export let data;
 
+  let submitMessages = {
+    errors: [],
+    success: "",
+  };
+
   let submitFunction = "";
-  const submit = function(e) {
+  const submit = function (e) {
     if (submitFunction === "add") {
       addSubmit(e);
     } else if (submitFunction === "save") {
@@ -15,39 +24,88 @@
     } else if (submitFunction === "delete") {
       deleteSubmit(e);
     }
-  }
-  
-  const addSubmit = function(e) {
+  };
+
+  const addSubmit = function (e) {
     const formData = new FormData(e.target);
-    
+    submitMessages["errors"] = [];
+
+    let name = formData.get("name");
+    if (name === "" || name === null || name === undefined) {
+      submitMessages["errors"] = [
+        ...submitMessages["errors"],
+        "Name is required!",
+      ];
+    }
+
+    let color = formData.get("color");
+    if (color === "" || color === null || color === undefined) {
+      submitMessages["errors"] = [
+        ...submitMessages["errors"],
+        "Color is required!",
+      ];
+    }
+
+    if (submitMessages["errors"].length > 0) {
+      return;
+    }
+
     let category = addCategory(
       String(formData.get("name")),
       String(formData.get("description")),
       String(formData.get("color"))
     );
 
-    goto("/category/" + category)
-  }
+    submitMessages["success"] = "Added successfully";
+    setTimeout(() => {
+      submitMessages["success"] = "";
+    }, 2000);
 
-  const saveSubmit = function(e) {
-    console.log(e);
+    goto("/category/" + category);
+  };
+
+  const saveSubmit = function (e) {
     const formData = new FormData(e.target);
-    
+    submitMessages["errors"] = [];
+
+    let name = formData.get("name");
+    if (name === "" || name === null || name === undefined) {
+      submitMessages["errors"] = [
+        ...submitMessages["errors"],
+        "Name is required!",
+      ];
+    }
+
+    let color = formData.get("color");
+    if (color === "" || color === null || color === undefined) {
+      submitMessages["errors"] = [
+        ...submitMessages["errors"],
+        "Color is required!",
+      ];
+    }
+
+    if (submitMessages["errors"].length > 0) {
+      return;
+    }
+
     saveCategory(
       parseInt($page.params.id),
-      String(formData.get("name")),
+      name,
       String(formData.get("description")),
-      String(formData.get("color"))
+      color
     );
-  }
 
-  const deleteSubmit = function() {    
-    deleteCategory(
-      parseInt($page.params.id)
-    );
+    submitMessages["success"] = "Saved successfully";
+    setTimeout(() => {
+      submitMessages["success"] = "";
+    }, 2000);
+  };
+
+  const deleteSubmit = function () {
+    deleteCategory(parseInt($page.params.id));
 
     goto("/");
-  }
+  };
 </script>
 
 <svelte:head>
@@ -95,31 +153,52 @@
               />
             </div>
           </div>
-          <div class="mt-5 text-right">
-            {#if data["category"]["id"] === 0}
-              <button
-                type="submit"
-                class="btn btn-info submitBtn"
-                on:click={() => submitFunction = "add"}
-              >
-                Add Category
-              </button>
-            {:else}
-              <button
-                type="submit"
-                class="btn btn-danger submitBtn"
-                on:click={() => submitFunction = "delete"}
-              >
-                Delete Category
-              </button>
-              <button
-                type="submit"
-                class="btn btn-info submitBtn"
-                on:click={() => submitFunction = "save"}
-              >
-                Save Category
-              </button>
-            {/if}
+          <div class="row py-2">
+            <div class="col-md-6 pt-md-0 pt-3">
+              {#if submitMessages["errors"].length > 0}
+                <div class="alert alert-danger">
+                  <ul>
+                    {#each submitMessages["errors"] as message}
+                      <li>{message}</li>
+                    {/each}
+                  </ul>
+                </div>
+              {:else if submitMessages["success"] !== ""}
+                <div class="alert alert-success">
+                  <ul>
+                    <li>{submitMessages["success"]}</li>
+                  </ul>
+                </div>
+              {/if}
+            </div>
+            <div class="col-md-6 pt-md-0 pt-3">
+              <div class="mt-5 text-right">
+                {#if data["category"]["id"] === 0}
+                  <button
+                    type="submit"
+                    class="btn btn-info submitBtn"
+                    on:click={() => (submitFunction = "add")}
+                  >
+                    Add Category
+                  </button>
+                {:else}
+                  <button
+                    type="submit"
+                    class="btn btn-danger submitBtn"
+                    on:click={() => (submitFunction = "delete")}
+                  >
+                    Delete Category
+                  </button>
+                  <button
+                    type="submit"
+                    class="btn btn-info submitBtn"
+                    on:click={() => (submitFunction = "save")}
+                  >
+                    Save Category
+                  </button>
+                {/if}
+              </div>
+            </div>
           </div>
         </div>
       </form>

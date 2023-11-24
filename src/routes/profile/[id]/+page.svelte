@@ -15,20 +15,34 @@
   let fallbackImage = "undraw_profile.png";
   const handleImageError = (ev) => (ev.target.src = fallbackImage);
   const handleImageUpload = (ev) => (fileName = ev.target.files[0].name);
-
+  
   let submitMessages = {
-    "errors": [],
-    "success": "",
+    errors: [],
+    success: ""
   };
+
+  let successMsg = localStorage.getItem("success_msg");
+  if (successMsg !== "" && successMsg !== null && successMsg !== undefined) {
+    submitMessages["success"] = successMsg;
+    localStorage.setItem("success_msg", "");
+    setTimeout(() => {
+      submitMessages["success"] = "";
+    }, 2000);
+  }
+
   const saveSubmit = function (e) {
     const formData = new FormData(e.target);
+    submitMessages["errors"] = [];
 
     let name = formData.get("name");
     if (name === "" || name === null || name === undefined) {
-      submitMessages["errors"] = [...submitMessages["errors"], "Name is required!"] ;
+      submitMessages["errors"] = [
+        ...submitMessages["errors"],
+        "Name is required!",
+      ];
     }
 
-    if (submitMessages["errors"]) {
+    if (submitMessages["errors"].length > 0) {
       return;
     }
 
@@ -40,11 +54,17 @@
       String(formData.get("company"))
     );
 
-    // window.location.reload();
+    localStorage.setItem("success_msg", "Saved successfully");
+
+    window.location.reload();
   };
 
   const uploadSubmit = function () {
-    goto("/");
+    submitMessages["errors"] = [];
+    submitMessages["errors"] = [
+        ...submitMessages["errors"],
+        "Not available in SPA!",
+      ];
   };
 </script>
 
@@ -52,23 +72,7 @@
   <title>Timeline Manager - Profile</title>
 </svelte:head>
 
-<div class="wrapper bg-white mt-sm-5">
-  {#if submitMessages["errors"].length > 0}
-  <div class="alert alert-danger">
-    <ul>
-      {#each submitMessages["errors"] as message}
-        <li>{message}</li>
-      {/each}
-    </ul>
-    </div>
-  {/if}
-  {#if submitMessages["success"] !== ""}
-  <div class="alert alert-success">
-    <ul>
-        <li>{message}</li>
-    </ul>
-    </div>
-  {/if}
+<div class="wrapper bg-white mt-sm-5 mb-5">
   <h4 class="pb-4 border-bottom">Profile</h4>
   <div class="d-flex align-items-start py-3 border-bottom">
     <img
@@ -175,12 +179,31 @@
           />
         </div>
       </div>
-      <div class="py-3 pb-4 border-bottom">
-        <input
-          type="submit"
-          value="Save Changes"
-          class="btn btn-xs btn-info pull-right"
-        />
+      <div class="row py-2">
+        <div class="col-md-6 pt-md-0 pt-3">
+          <input
+            type="submit"
+            value="Save Changes"
+            class="btn btn-xs btn-info pull-right"
+          />
+        </div>
+        <div class="col-md-6 pt-md-0 pt-3">
+          {#if submitMessages["errors"].length > 0}
+            <div class="alert alert-danger">
+              <ul>
+                {#each submitMessages["errors"] as message}
+                  <li>{message}</li>
+                {/each}
+              </ul>
+            </div>
+          {:else if submitMessages["success"] !== ""}
+            <div class="alert alert-success">
+              <ul>
+                <li>{submitMessages["success"]}</li>
+              </ul>
+            </div>
+          {/if}
+        </div>
       </div>
     </div>
   </form>
