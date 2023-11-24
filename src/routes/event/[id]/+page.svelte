@@ -1,6 +1,10 @@
 <script>
   import "$lib/css/event.css";
   import MultiSelect from "svelte-multiselect";
+  import { goto } from '$app/navigation';
+  import { page } from "$app/stores";
+  import { saveEvent, deleteEvent, addEvent } from "$lib/js/timeline-events";
+  import { getUser } from "$lib/js/users";
 
   export let data;
 
@@ -27,6 +31,57 @@
   let fallbackImage = "undraw_poster.png";
   const handleImageError = (ev) => (ev.target.src = fallbackImage);
   const handleImageUpload = (ev) => (fileName = ev.target.files[0].name);
+
+  let submitFunction = "";
+  const submit = function(e) {
+    if (submitFunction === "add") {
+      addSubmit(e);
+    } else if (submitFunction === "save") {
+      saveSubmit(e);
+    } else if (submitFunction === "delete") {
+      deleteSubmit(e);
+    }
+  }
+  
+  const addSubmit = function(e) {
+    const formData = new FormData(e.target);
+    
+    let event = addEvent(
+      getUser()["id"],
+      String(formData.get("title")),
+      String(formData.get("description")),
+      String(formData.get("category")),
+      new Date(formData.get("start") + "Z"),
+      new Date(formData.get("end") + "Z")
+    );
+
+    goto("/event/" + event)
+  }
+
+  const saveSubmit = function(e) {
+    const formData = new FormData(e.target);
+    
+    saveEvent(
+      parseInt($page.params.id),
+      String(formData.get("title")),
+      String(formData.get("description")),
+      String(formData.get("category")),
+      new Date(formData.get("start") + "Z"),
+      new Date(formData.get("end") + "Z")
+    );
+  }
+
+  const deleteSubmit = function() {    
+    deleteEvent(
+      parseInt($page.params.id)
+    );
+
+    goto("/");
+  }
+
+  const uploadSubmit = function() {    
+    goto("/");
+  }
 </script>
 
 <svelte:head>
@@ -51,11 +106,7 @@
           >
             <div class="pl-sm-4 pl-2" id="img-section">
               <b>Poster</b>
-              <form
-                action="?/upload"
-                method="post"
-                enctype="multipart/form-data"
-              >
+              <form on:submit|preventDefault={uploadSubmit} enctype="multipart/form-data">
                 <label for="file-upload" class="custom-file-upload d-block">
                   {#if fileName === ""}
                     <i class="fa fa-cloud-upload" /> Upload Image
@@ -82,7 +133,7 @@
       {/if}
     </div>
     <div class="col-md-8">
-      <form method="post">
+      <form on:submit|preventDefault={submit}>
         <div class="p-3 py-5">
           <label for="title">Title</label>
           <div class="row mt-2" style="margin-bottom: 20px;">
@@ -150,7 +201,7 @@
               <button
                 type="submit"
                 class="btn btn-info submitBtn"
-                formaction="?/add"
+                on:click={() => submitFunction = "add"}
               >
                 Add Event
               </button>
@@ -158,14 +209,14 @@
               <button
                 type="submit"
                 class="btn btn-danger submitBtn"
-                formaction="?/delete"
+                on:click={() => submitFunction = "delete"}
               >
                 Delete Event
               </button>
               <button
                 type="submit"
                 class="btn btn-info submitBtn"
-                formaction="?/save"
+                on:click={() => submitFunction = "save"}
               >
                 Save Event
               </button>

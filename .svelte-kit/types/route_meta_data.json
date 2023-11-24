@@ -1,43 +1,43 @@
 {
 	"/": [
-		"src/routes/+page.server.js",
-		"src/routes/+layout.js",
-		"src/routes/+layout.js"
+		"src/routes/+page.js",
+		"src/routes/+layout.ts",
+		"src/routes/+layout.ts"
 	],
 	"/category/[id]": [
-		"src/routes/category/[id]/+page.server.js",
-		"src/routes/+layout.js"
+		"src/routes/category/[id]/+page.js",
+		"src/routes/+layout.ts"
 	],
 	"/event/[id]": [
-		"src/routes/event/[id]/+page.server.js",
-		"src/routes/+layout.js"
+		"src/routes/event/[id]/+page.js",
+		"src/routes/+layout.ts"
 	],
 	"/profile/[id]": [
-		"src/routes/profile/[id]/+page.server.js",
-		"src/routes/+layout.js"
+		"src/routes/profile/[id]/+page.js",
+		"src/routes/+layout.ts"
 	],
 	"/settings/[id]": [
-		"src/routes/settings/[id]/+page.server.js",
-		"src/routes/+layout.js"
+		"src/routes/settings/[id]/+page.js",
+		"src/routes/+layout.ts"
 	],
 	"/tables/categories": [
-		"src/routes/tables/categories/+page.server.js",
-		"src/routes/+layout.js"
+		"src/routes/tables/categories/+page.js",
+		"src/routes/+layout.ts"
 	],
 	"/tables/timeline-events-categories": [
-		"src/routes/tables/timeline-events-categories/+page.server.js",
-		"src/routes/+layout.js"
+		"src/routes/tables/timeline-events-categories/+page.js",
+		"src/routes/+layout.ts"
 	],
 	"/tables/timeline-events": [
-		"src/routes/tables/timeline-events/+page.server.js",
-		"src/routes/+layout.js"
+		"src/routes/tables/timeline-events/+page.js",
+		"src/routes/+layout.ts"
 	],
 	"/tables/user-settings": [
-		"src/routes/tables/user-settings/+page.server.js",
-		"src/routes/+layout.js"
+		"src/routes/tables/user-settings/+page.js",
+		"src/routes/+layout.ts"
 	],
 	"/tables/users": [
-		"src/routes/tables/users/+page.server.js",
-		"src/routes/+layout.js"
+		"src/routes/tables/users/+page.js",
+		"src/routes/+layout.ts"
 	]
 }

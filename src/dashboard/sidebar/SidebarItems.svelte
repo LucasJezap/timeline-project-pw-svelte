@@ -15,16 +15,22 @@
 
   onMount(() => {
     const sidebarData = data.flatMap((section) => {
-      return section.content.map((content) => ({
-        title: content.title,
-        link: content.link,
-        section: section.section,
-      }));
+      return section.content.map((content) => {
+        if (content.link === "/profile" || content.link === "/settings") {
+          content.link += "/" + $page.data.user["id"];
+        }
+
+        return {
+          title: content.title,
+          link: content.link,
+          section: section.section,
+        };
+      });
     });
 
-    currentSection = sidebarData.find(
-      (item) => item.link === $page.url.pathname
-    )?.section ?? "Main";
+    currentSection =
+      sidebarData.find((item) => item.link === $page.url.pathname)?.section ??
+      "Main";
   });
 </script>
 
@@ -41,7 +47,7 @@
                 section === currentSection && "rounded-full bg-fuchsia-800"
               }`}
             >
-              <i class="{icon}" />
+              <i class={icon} />
             </div>
           </div>
         </button>

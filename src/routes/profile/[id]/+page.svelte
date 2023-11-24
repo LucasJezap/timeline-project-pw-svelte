@@ -1,11 +1,37 @@
 <script>
   import "$lib/css/profile.css";
+  import { goto } from '$app/navigation';
+  import { page } from "$app/stores";
+  import { getUser, saveUser } from "$lib/js/users";
+
+  if (getUser()["id"] !== parseInt($page.params.id)) {
+    goto("/");
+  }
+
   export let data;
   let fileName = "";
 
   let fallbackImage = "undraw_profile.png";
   const handleImageError = (ev) => (ev.target.src = fallbackImage);
   const handleImageUpload = (ev) => (fileName = ev.target.files[0].name);
+
+  const saveSubmit = function(e) {
+    const formData = new FormData(e.target);
+    
+    saveUser(
+      String(formData.get("name")),
+      String(formData.get("first_name")),
+      String(formData.get("last_name")),
+      String(formData.get("phone")),
+      String(formData.get("company")),
+    );
+
+    window.location.reload();
+  }
+
+  const uploadSubmit = function() {    
+    goto("/");
+  }
 </script>
 
 <svelte:head>
@@ -24,7 +50,7 @@
     <div class="pl-sm-2 pl-2" id="img-section">
       <b>Profile Photo</b>
       <p>Accepted file type .png.</p>
-      <form action="?/upload" method="post" enctype="multipart/form-data">
+      <form on:submit|preventDefault={uploadSubmit} enctype="multipart/form-data">
         <label for="file-upload" class="custom-file-upload">
           {#if fileName === ""}
             <i class="fa fa-cloud-upload" /> Upload Image
@@ -41,7 +67,7 @@
       </form>
     </div>
   </div>
-  <form action="?/save" method="post">
+  <form on:submit|preventDefault={saveSubmit}>
     <div class="py-2">
       <div class="row py-2">
         <div class="col-md-6">

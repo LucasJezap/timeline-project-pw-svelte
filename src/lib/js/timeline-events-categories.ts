@@ -88,25 +88,37 @@ export var timelineEventsCategories = [
   },
 ];
 
-var timelineEventCategoryId = timelineEventsCategories.length;
+export function initTimelineEventCategories(force) {
+  if (!localStorage.getItem("timeline_event_categories") || force) {
+    localStorage.setItem("timeline_event_categories", JSON.stringify(timelineEventsCategories));
+  }
+}
 
 export function addTimelineEventCategory(
   timelineEvent: number,
   category: number
 ) {
-  timelineEventCategoryId += 1;
+  let timelineCategories = JSON.parse(localStorage.getItem("timeline_event_categories"));
 
-  timelineEventsCategories.push({
-    id: timelineEventCategoryId,
+  let timelineEventCategoryId = timelineCategories.reduce(
+    (accumulator, current) => {
+      return accumulator.id > current.id ? accumulator : current;
+    }
+  )["id"];
+
+  timelineCategories.push({
+    id: timelineEventCategoryId + 1,
     timelineEvent: timelineEvent,
     category: category,
   });
+
+  localStorage.setItem("timeline_event_categories", JSON.stringify(timelineCategories));
 }
 
 export function getTimelineEventCategories(timelineEvent: number) {
   let categories = [];
 
-  timelineEventsCategories.forEach(function (timelineEventCategory) {
+  JSON.parse(localStorage.getItem("timeline_event_categories")).forEach(function (timelineEventCategory) {
     if (timelineEventCategory["timelineEvent"] === timelineEvent) {
       let category = getCategory(timelineEventCategory["category"]);
       if (category !== undefined) {
@@ -120,20 +132,20 @@ export function getTimelineEventCategories(timelineEvent: number) {
 
 export function deleteByEvent(timelineEvent: number) {
   let newTimelineEventsCategories = [];
-  timelineEventsCategories.forEach(function (timelineEventCategory, idx) {
+  JSON.parse(localStorage.getItem("timeline_event_categories")).forEach(function (timelineEventCategory) {
     if (timelineEventCategory["timelineEvent"] !== timelineEvent) {
-      newTimelineEventsCategories = [...newTimelineEventsCategories, timelineEventsCategories[idx]];
+      newTimelineEventsCategories = [...newTimelineEventsCategories, timelineEventCategory];
     }
   });
-  timelineEventsCategories = newTimelineEventsCategories;
+  localStorage.setItem("timeline_event_categories", JSON.stringify(newTimelineEventsCategories));
 }
 
 export function deleteByCategory(category: number) {
   let newTimelineEventsCategories = [];
-  timelineEventsCategories.forEach(function (timelineEventCategory, idx) {
+  JSON.parse(localStorage.getItem("timeline_event_categories")).forEach(function (timelineEventCategory) {
     if (timelineEventCategory["category"] !== category) {
-      newTimelineEventsCategories = [...newTimelineEventsCategories, timelineEventsCategories[idx]];
+      newTimelineEventsCategories = [...newTimelineEventsCategories, timelineEventCategory];
     }
   });
-  timelineEventsCategories = newTimelineEventsCategories;
+  localStorage.setItem("timeline_event_categories", JSON.stringify(newTimelineEventsCategories));
 }

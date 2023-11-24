@@ -99,7 +99,26 @@ export var timelineEvents = [
   },
 ];
 
-var timelineEventId = timelineEvents.length;
+export function initEvents(force) {
+  if (!localStorage.getItem("timeline_events") || force) {
+    localStorage.setItem("timeline_events", JSON.stringify(timelineEvents));
+  }
+  if (!localStorage.getItem("sort_by") || force) {
+    localStorage.setItem("sort_by", "start asc");
+  }
+}
+
+export function getAllEvents() {
+  let events = JSON.parse(localStorage.getItem("timeline_events"));
+
+  events.forEach(ev => {
+    ev["start"] = new Date(ev["start"]);
+    ev["end"] = new Date(ev["end"]);
+  });
+
+  return events;
+}
+
 
 export function addEvent(
   user: number,
@@ -109,10 +128,14 @@ export function addEvent(
   start: Date,
   end: Date
 ) {
-  timelineEventId += 1;
+  let events = getAllEvents();
 
-  timelineEvents.push({
-    id: timelineEventId,
+  let timelineEventId = events.reduce((accumulator, current) => {
+    return accumulator.id > current.id ? accumulator : current;
+  })["id"];
+
+  events.push({
+    id: timelineEventId + 1,
     user: user,
     title: title,
     description: description,
@@ -131,13 +154,15 @@ export function addEvent(
     });
   }
 
-  return timelineEventId;
+  localStorage.setItem("timeline_events", JSON.stringify(events));
+
+  return timelineEventId+1;
 }
 
 export function getEvent(eventId: number) {
   let event;
 
-  timelineEvents.forEach(function (ev) {
+  getAllEvents().forEach(function (ev) {
     if (ev["id"] === eventId) {
       event = ev;
     }
@@ -154,7 +179,9 @@ export function saveEvent(
   start: Date,
   end: Date
 ) {
-  timelineEvents.forEach(function (ev) {
+  let events = getAllEvents();
+
+  events.forEach(function (ev) {
     if (ev["id"] === eventId) {
       ev.title = title;
       ev.description = description;
@@ -173,32 +200,46 @@ export function saveEvent(
       }
     }
   });
+
+  localStorage.setItem("timeline_events", JSON.stringify(events));
 }
 
 export function deleteEvent(eventId: number) {
-  timelineEvents.forEach(function (ev, idx) {
+  let events = getAllEvents();
+
+  events.forEach(function (ev, idx) {
     if (ev["id"] === eventId) {
-      timelineEvents.splice(idx, 1);
+      events.splice(idx, 1);
       deleteByEvent(ev["id"]);
     }
   });
+
+  localStorage.setItem("timeline_events", JSON.stringify(events));
 }
 
 export function uploadEventImage(eventId: number, image: string) {
-  timelineEvents.forEach(function (ev) {
+  let events = getAllEvents();
+
+  events.forEach(function (ev) {
     if (ev["id"] === eventId) {
       ev.image = image;
     }
   });
+
+  localStorage.setItem("timeline_events", JSON.stringify(events));
 }
 
 export function getFilteredEvents(filters) {
   let filteredEvents = [];
 
-  timelineEvents.forEach(function (ev) {
+  getAllEvents().forEach(function (ev) {
     let isFilteredOut = false;
 
     for (const [key, value] of Object.entries(filters)) {
+      if (value === "" || value === undefined || value === null) {
+        continue;
+      }
+
       if (
         (key === "title" || key === "description") &&
         !ev[key].includes(String(value))
@@ -216,14 +257,18 @@ export function getFilteredEvents(filters) {
 
       if (key === "category" && value !== "") {
         const evCategories = getTimelineEventCategories(ev["id"]);
+        let evCategoriesNames = [];
+        evCategories.forEach(category => {
+          evCategoriesNames = [...evCategoriesNames, category["name"]];
+        });
+
         let toFilterOut = true;
 
         JSON.parse(String(value)).forEach((category) => {
-          let cat = getCategoryByName(category);
-  
-          if (evCategories.includes(cat)) {
+
+          if (evCategoriesNames.includes(category)) {
             toFilterOut = false;
-          };
+          }
         });
 
         if (toFilterOut) {
@@ -248,7 +293,7 @@ export function getUpcomingEvents(userId: number) {
 
   let upcomingEvents = [];
 
-  timelineEvents.forEach(function (ev) {
+  getAllEvents().forEach(function (ev) {
     let t = ev["start"].getTime();
     if (t >= from && t <= to) {
       upcomingEvents = [...upcomingEvents, ev];

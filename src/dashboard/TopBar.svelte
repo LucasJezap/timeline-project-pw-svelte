@@ -1,19 +1,24 @@
 <script>
   import { toggleSidebar } from "./store";
-  import { browser } from "$app/environment";
-  import { getUpcomingEvents } from "$lib/js/timeline-events";
-  import { categories, getCategoryByName } from "$lib/js/categories";
+  import { getUpcomingEvents, initEvents } from "$lib/js/timeline-events";
+  import {
+    categories,
+    getCategoryByName,
+    initCategories,
+  } from "$lib/js/categories";
   import MultiSelect from "svelte-multiselect";
-  import { getCookie, setCookie } from "svelte-cookie";
   import { onMount } from "svelte";
-  import { changeUser } from "$lib/js/users";
-  import { page } from '$app/stores';
+  import { changeUser, initUsers } from "$lib/js/users";
+  import { page } from "$app/stores";
+  import { initUserSettings } from "$lib/js/user-settings";
+  import { initTimelineEventCategories } from "$lib/js/timeline-events-categories";
   import {
     Dropdown,
     DropdownItem,
     DropdownMenu,
     DropdownToggle,
   } from "sveltestrap";
+  import { goto } from "$app/navigation";
 
   let searchText = "";
   let loading = false;
@@ -34,24 +39,23 @@
   }
 
   let filters = {};
-  let user = $page.data.user; 
+  let user = $page.data.user;
   let upcomingEvents = $page.data.upcomingEvents;
   let sortBy = "";
 
   onMount(() => {
-    sortBy = getCookie("sort_by");
-    filters["filter_title"] = getCookie("filter_title");
-    filters["filter_description"] = getCookie("filter_description");
-    filters["filter_from"] = getCookie("filter_from");
-    filters["filter_to"] = getCookie("filter_to");
-    filters["filter_category"] = [];
+    sortBy = localStorage.getItem("sort_by");
+    filters["filter_title"] = localStorage.getItem("filter_title");
+    filters["filter_description"] = localStorage.getItem("filter_description");
+    filters["filter_from"] = localStorage.getItem("filter_from");
+    filters["filter_to"] = localStorage.getItem("filter_to");
 
-    let cookieCategories = getCookie("filter_category");
-    if (cookieCategories !== "") {
-      JSON.parse(getCookie("filter_category")).forEach((category) => {
+    let filterCategories = localStorage.getItem("filter_category");
+    if (filterCategories !== "" && filterCategories !== null && filterCategories !== undefined) {
+      JSON.parse(filterCategories).forEach((category) => {
         let cat = getCategoryByName(category);
 
-        if (cat !== undefined) {
+        if (cat !== undefined) { 
           filters["filter_category"] = [
             ...filters["filter_category"],
             cat["name"],
@@ -64,11 +68,47 @@
   const nextUser = function () {
     user = changeUser();
     upcomingEvents = getUpcomingEvents(user["id"]);
-    router.redirect("/");
+    window.location.reload();
   };
 
   let fallbackImage = "images/undraw_profile.svg";
   const handleImageError = (ev) => (ev.target.src = fallbackImage);
+
+  let submitFunction = "";
+  const submit = function(e) {
+    if (submitFunction === "add") {
+      addFiltersSubmit(e);
+    } else if (submitFunction === "delete") {
+      deleteFiltersSubmit(e);
+    }
+  }
+
+  const addFiltersSubmit = function(e) {
+    const formData = new FormData(e.target);
+    
+    const filters = ["title", "description", "from", "to", "category"];
+
+    filters.forEach((filter) => {
+      let filterName = "filter_" + filter;
+      let v = formData.get(filter);
+      if ((filter === "category" && v !== "[]") || (filter !== "category" && v !== "")) {
+        localStorage.setItem(filterName, v);
+      }
+    });
+
+    window.location.reload();
+  }
+
+  const deleteFiltersSubmit = function(e) {
+    const filters = ["title", "description", "from", "to", "category"];
+
+    filters.forEach((filter) => {
+      let filterName = "filter_" + filter;
+      localStorage.removeItem(filterName)
+    });
+
+    window.location.reload();
+  }
 </script>
 
 <nav
@@ -84,42 +124,57 @@
     &#8801;
   </button>
 
-  {#if $page.data.showFilterAndSort !== undefined }
   <div class="topbar-divider d-none d-sm-block" />
 
-  <!-- Topbar Search -->
   <button
     type="button"
     class="btn btn-primary"
-    data-toggle="modal"
-    data-target="#filterModal"
+    on:click={() => {
+      initUsers(true);
+      initUserSettings(true);
+      initEvents(true);
+      initTimelineEventCategories(true);
+      initCategories(true);
+      goto("/");
+    }}
   >
-    Filter
+    Restore Default Values
   </button>
 
-  <div class="topbar-divider d-none d-sm-block" />
+  {#if $page.data.showFilterAndSort !== undefined}
+    <div class="topbar-divider d-none d-sm-block" />
 
-  <Dropdown>
-    <DropdownToggle caret color="danger">Sort By</DropdownToggle>
-    <DropdownMenu>
-      {#each ["id", "title", "start", "end", "description"] as value}
-        {#each ["asc", "desc"] as order}
-          <DropdownItem
-            active={value + " " + order === sortBy}
-            on:click={() => {
-              sortBy = value + " " + order;
-              setCookie("sort_by", sortBy, 365, true);
-              if (browser) {
+    <!-- Topbar Search -->
+    <button
+      type="button"
+      class="btn btn-primary"
+      data-toggle="modal"
+      data-target="#filterModal"
+    >
+      Filter
+    </button>
+
+    <div class="topbar-divider d-none d-sm-block" />
+
+    <Dropdown>
+      <DropdownToggle caret color="danger">Sort By</DropdownToggle>
+      <DropdownMenu>
+        {#each ["id", "title", "start", "end", "description"] as value}
+          {#each ["asc", "desc"] as order}
+            <DropdownItem
+              active={value + " " + order === sortBy}
+              on:click={() => {
+                sortBy = value + " " + order;
+                localStorage.setItem("sort_by", sortBy);
                 window.location.reload();
-              }
-            }}
-          >
-            {value + " " + order}
-          </DropdownItem>
+              }}
+            >
+              {value + " " + order}
+            </DropdownItem>
+          {/each}
         {/each}
-      {/each}
-    </DropdownMenu>
-  </Dropdown>
+      </DropdownMenu>
+    </Dropdown>
   {/if}
 
   <!-- Topbar Navbar -->
@@ -174,7 +229,11 @@
       >
         <h6 class="dropdown-header">Alerts Center</h6>
         {#each upcomingEvents as event}
-          <a class="dropdown-item d-flex align-items-center" target="_blank" href="https://www.cinema-city.pl/search?query={event["title"]}">
+          <a
+            class="dropdown-item d-flex align-items-center"
+            target="_blank"
+            href="https://www.cinema-city.pl/search?query={event['title']}"
+          >
             <div class="mr-3">
               <div class="icon-circle bg-primary">
                 <i class="fas fa-file-alt text-white" />
@@ -268,7 +327,7 @@
       <!-- Modal Body -->
       <div class="modal-body">
         <div class="container">
-          <form method="post" class="form-inline" id="filter_form">
+          <form on:submit|preventDefault={submit} class="form-inline" id="filter_form">
             <div class="col-md-12">
               <div class="form-group">
                 <label for="title">Title</label>
@@ -352,14 +411,14 @@
               <button
                 type="submit"
                 class="btn btn-primary submitBtn"
-                formaction="?/addFilters"
+                on:click={() => submitFunction = "add"}
               >
                 Filter
               </button>
               <button
                 type="submit"
                 class="btn btn-primary submitBtn"
-                formaction="?/deleteFilters"
+                on:click={() => submitFunction = "delete"}
               >
                 Clear All Filters
               </button>

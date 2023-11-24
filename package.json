@@ -16,6 +16,7 @@
 		"layout"
 	],
 	"scripts": {
+		"start": "vite dev",
 		"dev": "vite dev",
 		"build": "vite build",
 		"preview": "vite preview",
@@ -27,6 +28,7 @@
 	},
 	"devDependencies": {
 		"@sveltejs/adapter-auto": "^2.0.0",
+		"@sveltejs/adapter-static": "^2.0.3",
 		"@sveltejs/kit": "^1.5.0",
 		"@typescript-eslint/eslint-plugin": "^5.45.0",
 		"@typescript-eslint/parser": "^5.45.0",
@@ -52,7 +54,6 @@
 		"@fortawesome/fontawesome-free": "^6.4.2",
 		"jquery": "^3.7.1",
 		"svelte": "^3.59.2",
-		"svelte-cookie": "^1.0.1",
 		"svelte-multiselect": "^10.2.0",
 		"sveltestrap": "^5.11.2"
 	}

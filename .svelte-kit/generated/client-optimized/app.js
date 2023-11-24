@@ -1,5 +1,3 @@
-import * as client_hooks from '../../../src/hooks.client.js';
-
 export { matchers } from './matchers.js';
 
 export const nodes = [
@@ -20,20 +18,20 @@ export const nodes = [
 export const server_loads = [];
 
 export const dictionary = {
-		"/": [2],
-		"/category/[id]": [3],
-		"/event/[id]": [4],
-		"/profile/[id]": [5],
-		"/settings/[id]": [6],
-		"/tables/categories": [7],
-		"/tables/timeline-events-categories": [9],
-		"/tables/timeline-events": [8],
-		"/tables/user-settings": [10],
-		"/tables/users": [11]
+		"/": [~2],
+		"/category/[id]": [~3],
+		"/event/[id]": [~4],
+		"/profile/[id]": [~5],
+		"/settings/[id]": [~6],
+		"/tables/categories": [~7],
+		"/tables/timeline-events-categories": [~9],
+		"/tables/timeline-events": [~8],
+		"/tables/user-settings": [~10],
+		"/tables/users": [~11]
 	};
 
 export const hooks = {
-	handleError: client_hooks.handleError || (({ error }) => { console.error(error) }),
+	handleError: (({ error }) => { console.error(error) }),
 };
 
 export { default as root } from '../root.svelte';

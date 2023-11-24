@@ -23,18 +23,27 @@ export var users = [
   },
 ];
 
-var usersCount = users.length;
-var currentUser = 1;
+export function initUsers(force) {
+  if (!localStorage.getItem("users") || force) {
+    localStorage.setItem("users", JSON.stringify(users));
+  }
+  if (!localStorage.getItem("current_user") || force) {
+    localStorage.setItem("current_user", "1");
+  }
+}
 
 export function changeUser() {
-  currentUser = (currentUser % usersCount) + 1;
+  let currentUser = parseInt(localStorage.getItem("current_user"));
+  currentUser = (currentUser % users.length) + 1;
+  localStorage.setItem("current_user", String(currentUser));
   return getUser();
 }
 
 export function getUser() {
+  let currentUser = parseInt(localStorage.getItem("current_user"));
   let user;
 
-  users.forEach(function (u) {
+  JSON.parse(localStorage.getItem("users")).forEach(function (u) {
     if (u["id"] === currentUser) {
       user = u;
     }
@@ -50,6 +59,9 @@ export function saveUser(
   phone: string,
   company: string
 ) {
+  let currentUser = parseInt(localStorage.getItem("current_user"));
+  let users = JSON.parse(localStorage.getItem("users"));
+
   users.forEach(function (us) {
     if (us["id"] === currentUser) {
       us.name = name;
@@ -59,20 +71,32 @@ export function saveUser(
       us.company = company;
     }
   });
+
+  localStorage.setItem("users", JSON.stringify(users));
 }
 
 export function uploadUserImage(image: string) {
+  let currentUser = parseInt(localStorage.getItem("current_user"));
+  let users = JSON.parse(localStorage.getItem("users"));
+
   users.forEach(function (us) {
     if (us["id"] === currentUser) {
       us.avatar = image;
     }
   });
+
+  localStorage.setItem("users", JSON.stringify(users));
 }
 
 export function changePassword(password: string) {
+  let currentUser = parseInt(localStorage.getItem("current_user"));
+  let users = JSON.parse(localStorage.getItem("users"));
+
   users.forEach(function (us) {
     if (us["id"] === currentUser) {
       us.password = password;
     }
   });
+
+  localStorage.setItem("users", JSON.stringify(users));
 }

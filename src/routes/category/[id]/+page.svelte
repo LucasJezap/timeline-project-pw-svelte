@@ -1,6 +1,53 @@
 <script>
   import "$lib/css/event.css";
+  import { goto } from '$app/navigation';
+  import { page } from "$app/stores";
+  import {addCategory, saveCategory, deleteCategory} from "$lib/js/categories"
+
   export let data;
+
+  let submitFunction = "";
+  const submit = function(e) {
+    if (submitFunction === "add") {
+      addSubmit(e);
+    } else if (submitFunction === "save") {
+      saveSubmit(e);
+    } else if (submitFunction === "delete") {
+      deleteSubmit(e);
+    }
+  }
+  
+  const addSubmit = function(e) {
+    const formData = new FormData(e.target);
+    
+    let category = addCategory(
+      String(formData.get("name")),
+      String(formData.get("description")),
+      String(formData.get("color"))
+    );
+
+    goto("/category/" + category)
+  }
+
+  const saveSubmit = function(e) {
+    console.log(e);
+    const formData = new FormData(e.target);
+    
+    saveCategory(
+      parseInt($page.params.id),
+      String(formData.get("name")),
+      String(formData.get("description")),
+      String(formData.get("color"))
+    );
+  }
+
+  const deleteSubmit = function() {    
+    deleteCategory(
+      parseInt($page.params.id)
+    );
+
+    goto("/");
+  }
 </script>
 
 <svelte:head>
@@ -10,7 +57,7 @@
 <div class="container rounded bg-white mt-5">
   <div class="row">
     <div class="col-md-12">
-      <form method="post">
+      <form on:submit|preventDefault={submit}>
         <div class="p-3 py-5">
           <label for="name">Name</label>
           <div class="row mt-2" style="margin-bottom: 20px;">
@@ -53,7 +100,7 @@
               <button
                 type="submit"
                 class="btn btn-info submitBtn"
-                formaction="?/add"
+                on:click={() => submitFunction = "add"}
               >
                 Add Category
               </button>
@@ -61,14 +108,14 @@
               <button
                 type="submit"
                 class="btn btn-danger submitBtn"
-                formaction="?/delete"
+                on:click={() => submitFunction = "delete"}
               >
                 Delete Category
               </button>
               <button
                 type="submit"
                 class="btn btn-info submitBtn"
-                formaction="?/save"
+                on:click={() => submitFunction = "save"}
               >
                 Save Category
               </button>

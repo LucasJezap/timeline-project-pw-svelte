@@ -1,12 +1,11 @@
 <script>
-  import { getCookie } from "svelte-cookie";
   import { onMount } from "svelte";
 
   export let data;
   let events = data["timelineEvents"];
 
   onMount(() => {
-    let sortSplit = getCookie("sort_by").split(" ");
+    let sortSplit = localStorage.getItem("sort_by").split(" ");
 
     if (sortSplit.length === 2) {
       let sortBy = sortSplit[0];

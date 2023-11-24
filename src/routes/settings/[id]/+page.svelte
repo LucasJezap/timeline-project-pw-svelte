@@ -1,6 +1,35 @@
 <script>
   import "$lib/css/profile.css";
+  import { saveUserSettings } from "$lib/js/user-settings";
+  import { getUser, changePassword } from "$lib/js/users";
+  import { page } from "$app/stores";
+  import { goto } from "$app/navigation";
+
+  if (getUser()["id"] !== parseInt($page.params.id)) {
+    goto("/");
+  }
+
   export let data;
+
+  const changeSubmit = function(e) {
+    const formData = new FormData(e.target);
+    
+    changePassword(
+      String(formData.get("new_password"))
+    );
+  }
+
+  const saveSubmit = function(e) {
+    const formData = new FormData(e.target);
+    
+    saveUserSettings(
+      getUser()["id"],
+      String(formData.get("notification_days_before")),
+      String(formData.get("notification_days_after"))
+    );
+
+    window.location.reload();
+  }
 </script>
 
 <svelte:head>
@@ -9,7 +38,7 @@
 
 <div class="wrapper bg-white mt-sm-5">
   <h4 class="pb-4 border-bottom">Account settings</h4>
-  <form action="?/save" method="post">
+  <form on:submit|preventDefault={saveSubmit}>
       <div class="py-2">
           <h7>Control the amount of alerts you see</h7>
           <div class="row py-2">
@@ -30,7 +59,7 @@
           </div>
       </div>
   </form>
-  <form action="?/change" method="post">
+  <form on:submit|preventDefault={changeSubmit}>
       <div class="py-2">
           <h7>Change password</h7>
           <div class="row py-2">

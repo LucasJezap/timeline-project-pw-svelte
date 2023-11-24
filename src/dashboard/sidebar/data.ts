@@ -27,11 +27,11 @@ export const data = [
 			},
 			{
 				title: 'Profile',
-				link: '/profile/1'
+				link: '/profile'
 			},
 			{
 				title: 'Settings',
-				link: '/settings/1'
+				link: '/settings'
 			}
 		]
 	},

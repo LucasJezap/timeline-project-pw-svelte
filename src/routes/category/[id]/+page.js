@@ -27,34 +27,3 @@ export async function load({ params }) {
     upcomingEvents,
   };
 }
-
-export const actions = {
-  save: async ({ request, params }) => {
-    const data = await request.formData();
-
-    saveCategory(
-      parseInt(params.id),
-      String(data.get("name")),
-      String(data.get("description")),
-      String(data.get("color"))
-
-    );
-  },
-
-  add: async ({ request }) => {
-    const data = await request.formData();
-
-    const categoryId = addCategory(
-      String(data.get("name")),
-      String(data.get("description")),
-      String(data.get("color"))
-    );
-
-    throw redirect(302, `/category/${categoryId}`);
-  },
-
-  delete: async ({ params }) => {
-    deleteCategory(parseInt(params.id));
-    throw redirect(302, "/");
-  },
-};

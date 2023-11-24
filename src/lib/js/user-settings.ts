@@ -13,10 +13,16 @@ export let userSettings = [
   },
 ];
 
+export function initUserSettings(force) {
+  if (!localStorage.getItem("user_settings") || force) {
+    localStorage.setItem("user_settings", JSON.stringify(userSettings));
+  }
+}
+
 export function getUserSettings(userId: number) {
   let settings;
 
-  userSettings.forEach(function (us) {
+  JSON.parse(localStorage.getItem("user_settings")).forEach(function (us) {
     if (us["user"] === userId) {
       settings = us;
     }
@@ -30,10 +36,14 @@ export function saveUserSettings(
   notificationDaysBefore: number,
   notificationDaysAfter: number
 ) {
-  userSettings.forEach(function (us) {
+  let settings = JSON.parse(localStorage.getItem("user_settings"));
+
+  settings.forEach(function (us) {
     if (us["user"] === userId) {
       us.notificationDaysBefore = notificationDaysBefore;
       us.notificationDaysAfter = notificationDaysAfter;
     }
   });
+
+  localStorage.setItem("user_settings", JSON.stringify(settings)); 
 }

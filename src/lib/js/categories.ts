@@ -66,25 +66,37 @@ export var categories = [
   },
 ];
 
-var categoryId = categories.length;
+export function initCategories(force) {
+  if (!localStorage.getItem("categories") || force) {
+    localStorage.setItem("categories", JSON.stringify(categories));
+  }
+}
 
 export function addCategory(name: string, description: string, color: string) {
-  categoryId += 1;
+  let eventCategories = JSON.parse(localStorage.getItem("categories"));
 
-  categories.push({
-    id: categoryId,
+  let categoryId = eventCategories.reduce(
+    (accumulator, current) => {
+      return accumulator.id > current.id ? accumulator : current;
+    }
+  )["id"];
+
+  eventCategories.push({
+    id: categoryId+1,
     name: name,
     description: description,
     color: color,
   });
 
-  return categoryId;
+  localStorage.setItem("categories", JSON.stringify(eventCategories));
+
+  return categoryId+1;
 }
 
 export function getCategory(categoryId: number) {
   let category;
 
-  categories.forEach(function (cat) {
+  JSON.parse(localStorage.getItem("categories")).forEach(function (cat) {
     if (cat["id"] === categoryId) {
       category = cat;
     }
@@ -96,7 +108,7 @@ export function getCategory(categoryId: number) {
 export function getCategoryByName(categoryName: string) {
   let category;
 
-  categories.forEach(function (cat) {
+  JSON.parse(localStorage.getItem("categories")).forEach(function (cat) {
     if (cat["name"] === categoryName) {
       category = cat;
     }
@@ -111,20 +123,28 @@ export function saveCategory(
   description: string,
   color: string
 ) {
-  categories.forEach(function (cat) {
+  let eventCategories = JSON.parse(localStorage.getItem("categories"));
+
+  eventCategories.forEach(function (cat) {
     if (cat["id"] === categoryId) {
       cat.name = name;
       cat.description = description;
       cat.color = color;
     }
   });
+
+  localStorage.setItem("categories", JSON.stringify(eventCategories));
 }
 
 export function deleteCategory(categoryId: number) {
-  categories.forEach(function (cat, idx) {
+  let eventCategories = JSON.parse(localStorage.getItem("categories"));
+
+  eventCategories.forEach(function (cat, idx) {
     if (cat["id"] === categoryId) {
       categories.splice(idx, 1);
       deleteByCategory(cat["id"]);
     }
   });
+
+  localStorage.setItem("categories", JSON.stringify(eventCategories));
 }
